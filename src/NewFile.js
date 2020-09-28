@@ -22,7 +22,8 @@ class App extends React.Component {
             { headerName: 'Link', field: 'link' }
          ],
          rowData: [],
-         isEmpty: false
+         isEmpty: false,
+         isBadRequest: false
       }
       this.updateState = this.updateState.bind(this);
    };
@@ -34,25 +35,33 @@ class App extends React.Component {
       //if(a.includes("crew")) {alert(a.substring(4,a.length))}
       //console.log(a)
       if (a !== null && a !== '') {
-         await axios.get('http://192.168.225.226:8080/GetMovie', {
-            params: {
-               name: a.includes("name") ? a.substring(5, a.length) : null,
-               crew: a.includes("crew") ? a.substring(5, a.length) : null,
-               rank: a.includes("rank") ? a.substring(5, a.length) : null,
-               year: a.includes("year") ? a.substring(5, a.length) : null,
-               rating: a.includes("rating") ? a.substring(7, a.length) : null
-            }
-         })
-
-            .then(res => {
-               //console.log(res.status)
-               if (res.status === 200) {
-                  this.setState({ rowData: res.data, isEmpty: true });
+         try {
+            await axios.get('http://192.168.225.226:8080/GetMovie', {
+               params: {
+                  name: a.includes("name") ? a.substring(5, a.length) : null,
+                  crew: a.includes("crew") ? a.substring(5, a.length) : null,
+                  rank: a.includes("rank") ? a.substring(5, a.length) : null,
+                  year: a.includes("year") ? a.substring(5, a.length) : null,
+                  rating: a.includes("rating") ? a.substring(7, a.length) : null
                }
             })
-            .catch(function (error) {
-               console.log(error);
-            })
+               .then(res => {
+                  //console.log(res.status)
+                  //console.log(res.data)
+                  if (res.status === 200 && res.data.length > 0) {
+                     this.setState({ rowData: res.data, isEmpty: false });
+                  } else if (res.status === 200 && res.data.length === 0) {
+                     this.setState({ rowData: res.data, isEmpty: true });
+                  } else if (res.status === 400) {
+                     console.log("Bad Request.")
+                  }
+               })
+         }
+         catch (error) {
+            this.setState({ isBadRequest: true });
+            console.error(error);
+            window.location.reload();
+         }
       }
       else { alert("Search movies using prefixed keywords like name, year, rating, rank and crew (Eg: rating 8)") }
    }
@@ -68,23 +77,25 @@ class App extends React.Component {
                   onChange={this.updateState} />
                <Button style={{ marginLeft: '20px' }} color="primary" onClick={() => this.OnSearch(this.state.data)}>Movie Search</Button>
             </div>
-            {this.state.rowData.length > 0 ?
-               <Row>
-                  <Col sm="12" md={{ size: 5, offset: 0 }}>
-                     <div style={{ marginLeft: '4px' }}>
-                        <br />
-                        <div className="ag-theme-balham"
-                           style={{ height: '500px', width: '1110px' }}>
-                           <AgGridReact
-                              columnDefs={this.state.columnDefs}
-                              rowData={this.state.rowData}>
-                           </AgGridReact>
+            {this.state.isBadRequest === true ?
+               <p style={{ marginLeft: '400px', marginTop: '10px' }}>Bad Request.</p>
+               : this.state.rowData.length > 0 ?
+                  <Row>
+                     <Col sm="12" md={{ size: 5, offset: 0 }}>
+                        <div style={{ marginLeft: '4px' }}>
+                           <br />
+                           <div className="ag-theme-balham"
+                              style={{ height: '500px', width: '1110px' }}>
+                              <AgGridReact
+                                 columnDefs={this.state.columnDefs}
+                                 rowData={this.state.rowData}>
+                              </AgGridReact>
+                           </div>
                         </div>
-                     </div>
-                  </Col>
-               </Row> : this.state.isEmpty === true ?
-                  <p style={{ marginLeft: '400px', marginTop: '10px' }}>0 search results</p>
-                  : null}
+                     </Col>
+                  </Row> : this.state.isEmpty === true ?
+                     <p style={{ marginLeft: '400px', marginTop: '10px' }}>About 0 search results</p>
+                     : null}
          </Container >
       );
    }
