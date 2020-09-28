@@ -52,14 +52,12 @@ class App extends React.Component {
                      this.setState({ rowData: res.data, isEmpty: false });
                   } else if (res.status === 200 && res.data.length === 0) {
                      this.setState({ rowData: res.data, isEmpty: true });
-                  } else if (res.status === 400) {
-                     console.log("Bad Request.")
                   }
                })
          }
          catch (error) {
-            this.setState({ isBadRequest: true });
             console.error(error);
+            this.setState({ isBadRequest: true });
             window.location.reload();
          }
       }
@@ -93,7 +91,8 @@ class App extends React.Component {
                            </div>
                         </div>
                      </Col>
-                  </Row> : this.state.isEmpty === true ?
+                  </Row>
+                  : this.state.isEmpty === true ?
                      <p style={{ marginLeft: '400px', marginTop: '10px' }}>About 0 search results</p>
                      : null}
          </Container >
