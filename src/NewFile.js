@@ -11,7 +11,6 @@ import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 class App extends React.Component {
    constructor(props) {
       super(props);
-
       this.state = {
          data: '',
          columnDefs: [
@@ -46,14 +45,16 @@ class App extends React.Component {
          })
 
             .then(res => {
-               //console.log(res)
-               this.setState({ rowData: res.data, isEmpty: true });
+               //console.log(res.status)
+               if (res.status === 200) {
+                  this.setState({ rowData: res.data, isEmpty: true });
+               }
             })
             .catch(function (error) {
                console.log(error);
             })
       }
-      else { alert("Search movies based on name, year, rating, rank and crew") }
+      else { alert("Search movies using prefixed keywords like name, year, rating, rank and crew (Eg: rating 8)") }
    }
 
    render() {
@@ -85,7 +86,6 @@ class App extends React.Component {
                   <p style={{ marginLeft: '400px', marginTop: '10px' }}>0 search results</p>
                   : null}
          </Container >
-
       );
    }
 }
