@@ -51,7 +51,7 @@ class App extends React.Component {
                   if (res.status === 200 && res.data.length > 0) {
                      this.setState({ rowData: res.data, isEmpty: false });
                   } else if (res.status === 200 && res.data.length === 0) {
-                     this.setState({ rowData: res.data, isEmpty: true });
+                     this.setState({isEmpty: true });
                   }
                })
          }
